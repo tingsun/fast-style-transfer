@@ -69,12 +69,16 @@ def ffwd_video(path_in, path_out, checkpoint_dir, device_t='/gpu:0', batch_size=
 
 
 # get img_shape
-def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4):
+def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4, control_lambda_style=None):
     assert len(paths_out) > 0
     is_paths = type(data_in[0]) == str
     if is_paths:
         assert len(data_in) == len(paths_out)
         img_shape = get_img(data_in[0]).shape
+        # lambda_style_1 = 0.3
+        # lambda_style_img_1 = np.ones((img_shape[0], img_shape[1], 1)) * lambda_style_1
+        final_img_shape = (img_shape[0], img_shape[1], 4)
+
     else:
         assert data_in.size[0] == len(paths_out)
         img_shape = X[0].shape
@@ -86,7 +90,8 @@ def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4):
     soft_config.gpu_options.allow_growth = True
     with g.as_default(), g.device(device_t), \
             tf.Session(config=soft_config) as sess:
-        batch_shape = (batch_size,) + img_shape
+        # batch_shape = (batch_size,) + img_shape
+        batch_shape = (batch_size,) + final_img_shape
         img_placeholder = tf.placeholder(tf.float32, shape=batch_shape,
                                          name='img_placeholder')
 
@@ -113,7 +118,12 @@ def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4):
                     assert img.shape == img_shape, \
                         'Images have different dimensions. ' +  \
                         'Resize images or use --allow-different-dimensions.'
-                    X[j] = img
+                    X[j,:,:,0:3] = img
+
+                    curr_lambda_style = control_lambda_style if control_lambda_style else 0.8
+                    print('Test lambda control: {}'.format(curr_lambda_style))
+                    curr_lambda_style_img = np.ones((img_shape[0], img_shape[1], 1)) * curr_lambda_style
+                    X[j, :, :, 3:] = curr_lambda_style_img
             else:
                 X = data_in[pos:pos+batch_size]
 
@@ -127,9 +137,9 @@ def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4):
         ffwd(remaining_in, remaining_out, checkpoint_dir, 
             device_t=device_t, batch_size=1)
 
-def ffwd_to_img(in_path, out_path, checkpoint_dir, device='/cpu:0'):
+def ffwd_to_img(in_path, out_path, checkpoint_dir, device='/cpu:0', control_lambda_style=None):
     paths_in, paths_out = [in_path], [out_path]
-    ffwd(paths_in, paths_out, checkpoint_dir, batch_size=1, device_t=device)
+    ffwd(paths_in, paths_out, checkpoint_dir, batch_size=1, device_t=device, control_lambda_style=control_lambda_style)
 
 def ffwd_different_dimensions(in_path, out_path, checkpoint_dir, 
             device_t=DEVICE, batch_size=4):
