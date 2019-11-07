@@ -84,8 +84,8 @@ def optimize(content_targets, style_target, content_weight, style_weight,
             style_gram = style_features[style_layer]
             style_losses.append(2 * tf.nn.l2_loss(grams - style_gram)/style_gram.size)
 
-        # style_loss = lambda_style * functools.reduce(tf.add, style_losses) / batch_size
-        style_loss = style_weight * functools.reduce(tf.add, style_losses) / batch_size  # original
+        style_loss = lambda_style * functools.reduce(tf.add, style_losses) / batch_size
+        # style_loss = style_weight * functools.reduce(tf.add, style_losses) / batch_size  # original
 
         # total variation denoising
         tv_y_size = _tensor_size(preds[:,1:,:,:])
@@ -111,8 +111,8 @@ def optimize(content_targets, style_target, content_weight, style_weight,
                 start_time = time.time()
                 curr = iterations * batch_size
 
-                # curr_lambda_style = np.random.randint(1, 10) / 10.0
-                curr_lambda_style = style_weight
+                curr_lambda_style = np.random.randint(1, 10) * 10.0
+                # curr_lambda_style = style_weight
                 curr_lambda_style_img = np.ones((256, 256, 1)) * curr_lambda_style
 
                 step = curr + batch_size
@@ -149,7 +149,7 @@ def optimize(content_targets, style_target, content_weight, style_weight,
                 if should_print:
                     to_get = [style_loss, content_loss, tv_loss, loss, preds]
                     test_feed_dict = {
-                       X_content:X_batch, lambda_style: 0.8  # np.random.randint(1, 10) / 10.0
+                       X_content:X_batch, lambda_style: 80.0  # np.random.randint(1, 10) / 10.0
                     }
 
                     tup = sess.run(to_get, feed_dict = test_feed_dict)

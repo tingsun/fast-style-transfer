@@ -153,12 +153,15 @@ def main():
 
         if options.test:
             print('Save test image.')
+            curr_lambda_style = np.random.randint(1, 10) * 10.0
+            # print('curr_lambda_style: {}'.format(curr_lambda_style))
             assert options.test_dir != False
             preds_path = '%s/%s_%s.png' % (options.test_dir,epoch,i)
             if not options.slow:
                 ckpt_dir = os.path.dirname(options.checkpoint_dir)
                 evaluate.ffwd_to_img(options.test, preds_path,
-                                     options.checkpoint_dir)
+                                     options.checkpoint_dir,
+                                     control_lambda_style=curr_lambda_style)
             else:
                 save_img(preds_path, img)
 
