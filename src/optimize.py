@@ -111,13 +111,13 @@ def optimize(content_targets, style_target, content_weight, style_weight,
                 step = curr + batch_size
                 X_batch = np.zeros(batch_shape, dtype=np.float32)
                 for j, img_p in enumerate(content_targets[curr:step]):
-                  try:
-                    curr_img = get_img(img_p, (256, 256, 3)).astype(np.float32)
-                  except Exception:
-                    continue
+                    try:
+                        curr_img = get_img(img_p, (256, 256, 3)).astype(np.float32)
+                    except Exception:
+                        continue
 
-                   X_batch[j,:,:,0:3] = curr_img
-                   X_batch[j,:,:,3:] = curr_lambda_style_img
+                    X_batch[j,:,:,0:3] = curr_img
+                    X_batch[j,:,:,3:] = curr_lambda_style_img
 
                 iterations += 1
                 assert X_batch.shape[0] == batch_size
