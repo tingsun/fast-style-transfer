@@ -14,16 +14,12 @@ def scale_img(style_path, style_scale):
     return style_target
 
 def get_img(src, img_size=False):
-    try:
-       img = scipy.misc.imread(src, mode='RGB') # misc.imresize(, (256, 256, 3))
-       if not (len(img.shape) == 3 and img.shape[2] == 3):
-           img = np.dstack((img,img,img))
-       if img_size != False:
-           img = scipy.misc.imresize(img, img_size)
-       return img
-
-    except Exception:
-        pass
+   img = scipy.misc.imread(src, mode='RGB') # misc.imresize(, (256, 256, 3))
+   if not (len(img.shape) == 3 and img.shape[2] == 3):
+       img = np.dstack((img,img,img))
+   if img_size != False:
+       img = scipy.misc.imresize(img, img_size)
+   return img
 
 def exists(p, msg):
     assert os.path.exists(p), msg
