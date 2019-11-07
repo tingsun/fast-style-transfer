@@ -64,9 +64,14 @@ def optimize(content_targets, style_target, content_weight, style_weight,
 
         content_size = _tensor_size(content_features[CONTENT_LAYER]) * batch_size
         assert _tensor_size(content_features[CONTENT_LAYER]) == _tensor_size(net[CONTENT_LAYER])
-        content_loss = (1 - lambda_style) * (2 * tf.nn.l2_loss(
+
+        # content_loss = (1 - lambda_style) * (2 * tf.nn.l2_loss(
+        #     net[CONTENT_LAYER] - content_features[CONTENT_LAYER]) / content_size
+        # )
+
+        content_loss = content_weight * (2 * tf.nn.l2_loss(
             net[CONTENT_LAYER] - content_features[CONTENT_LAYER]) / content_size
-        )
+        )  # original
 
         style_losses = []
         for style_layer in STYLE_LAYERS:
@@ -79,7 +84,8 @@ def optimize(content_targets, style_target, content_weight, style_weight,
             style_gram = style_features[style_layer]
             style_losses.append(2 * tf.nn.l2_loss(grams - style_gram)/style_gram.size)
 
-        style_loss = lambda_style * functools.reduce(tf.add, style_losses) / batch_size
+        # style_loss = lambda_style * functools.reduce(tf.add, style_losses) / batch_size
+        style_loss = style_weight * functools.reduce(tf.add, style_losses) / batch_size  # original
 
         # total variation denoising
         tv_y_size = _tensor_size(preds[:,1:,:,:])
@@ -105,7 +111,8 @@ def optimize(content_targets, style_target, content_weight, style_weight,
                 start_time = time.time()
                 curr = iterations * batch_size
 
-                curr_lambda_style = np.random.randint(1, 10) / 10.0
+                # curr_lambda_style = np.random.randint(1, 10) / 10.0
+                curr_lambda_style = style_weight
                 curr_lambda_style_img = np.ones((256, 256, 1)) * curr_lambda_style
 
                 step = curr + batch_size

@@ -121,7 +121,9 @@ def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4, co
                         'Resize images or use --allow-different-dimensions.'
                     X[j,:,:,0:3] = img
 
-                    curr_lambda_style = control_lambda_style if control_lambda_style else 0.8
+                    # curr_lambda_style = control_lambda_style if control_lambda_style else 0.8
+                    curr_lambda_style = 100.0
+
                     print('Test lambda control: {}'.format(curr_lambda_style))
                     curr_lambda_style_img = np.ones((img_shape[0], img_shape[1], 1)) * curr_lambda_style
                     X[j, :, :, 3:] = curr_lambda_style_img
