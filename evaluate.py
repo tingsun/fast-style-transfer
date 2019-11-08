@@ -187,6 +187,9 @@ def build_parser():
                         dest='allow_different_dimensions', 
                         help='allow different image dimensions')
 
+    parser.add_argument('--control-style', type=int,
+                        dest='control_lambda_style',help='weights for style')
+
     return parser
 
 def check_opts(opts):
@@ -209,7 +212,7 @@ def main():
             out_path = opts.out_path
 
         ffwd_to_img(opts.in_path, out_path, opts.checkpoint_dir,
-                    device=opts.device)
+                    device=opts.device, control_lambda_style=opts.control_lambda_style)
     else:
         files = list_files(opts.in_path)
         full_in = [os.path.join(opts.in_path,x) for x in files]
