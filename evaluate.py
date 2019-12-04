@@ -194,10 +194,12 @@ def build_parser():
                         help='allow different image dimensions')
 
     parser.add_argument('--control-style', type=int,
-                        dest='control_lambda_style',help='weights for style')
+                        dest='control_lambda_style',
+                        help='weights for style')
 
     parser.add_argument('--style-id', type=int,
-                        dest='style_id',help='selection for style')
+                        dest='style_id',
+                        help='selection for style')
 
     return parser
 

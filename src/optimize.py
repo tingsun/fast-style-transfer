@@ -191,10 +191,10 @@ def optimize(content_targets, style_targets, content_weight, style_weight,
                 start_time = time.time()
                 curr = iterations * batch_size
 
-                curr_lambda_style = np.random.randint(1, 10) * 10.0
+                curr_lambda_style = np.random.randint(1, 100) * 1.0
                 curr_lambda_style_img = np.ones((256, 256, 1)) * curr_lambda_style
 
-                curr_style_id = np.random.randint(len(style_targets))
+                curr_style_id = np.random.randint(len(style_targets)) if epoch > 1 else 0
                 # print('\ncurr_style_id:')
                 # print(type(curr_style_id))
                 # print(curr_style_id)
