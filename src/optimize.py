@@ -197,7 +197,7 @@ def optimize(content_targets, style_targets, content_weight, style_weight,
                 curr_style_id = np.random.randint(len(style_targets))
                 # print('\ncurr_style_id:')
                 # print(type(curr_style_id))
-                print(curr_style_id)
+                # print(curr_style_id)
                 curr_style_channel = np.ones((256, 256, 1)) * curr_style_id
 
                 step = curr + batch_size
