@@ -187,7 +187,7 @@ def optimize(content_targets, style_targets, content_weight, style_weight,
             num_examples = len(content_targets)
             iterations = 0
             while iterations * batch_size < num_examples:
-                print('iterations: {}'.format(iterations))
+                # print('iterations: {}'.format(iterations))
                 start_time = time.time()
                 curr = iterations * batch_size
 
