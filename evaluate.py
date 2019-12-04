@@ -70,7 +70,7 @@ def ffwd_video(path_in, path_out, checkpoint_dir, device_t='/gpu:0', batch_size=
 
 
 # get img_shape
-def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4, control_lambda_style=None):
+def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4, control_lambda_style=None, style_id=None):
     assert len(paths_out) > 0
     is_paths = type(data_in[0]) == str
     if is_paths:
@@ -78,7 +78,8 @@ def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4, co
         img_shape = get_img(data_in[0]).shape
         # lambda_style_1 = 0.3
         # lambda_style_img_1 = np.ones((img_shape[0], img_shape[1], 1)) * lambda_style_1
-        final_img_shape = (img_shape[0], img_shape[1], 4)
+        # final_img_shape = (img_shape[0], img_shape[1], 4)
+        final_img_shape = (img_shape[0], img_shape[1], 5)
 
     else:
         assert data_in.size[0] == len(paths_out)
@@ -101,7 +102,8 @@ def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4, co
         if os.path.isdir(checkpoint_dir):
             ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
             if ckpt and ckpt.model_checkpoint_path:
-                saver.restore(sess, ckpt.model_checkpoint_path)
+                # saver.restore(sess, ckpt.model_checkpoint_path)
+                saver.restore(sess, checkpoint_dir+'/fns.ckpt')
             else:
                 raise Exception("No checkpoint found...")
         else:
@@ -126,13 +128,16 @@ def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4, co
 
                     print('Test lambda control: {}'.format(curr_lambda_style))
                     curr_lambda_style_img = np.ones((img_shape[0], img_shape[1], 1)) * curr_lambda_style
+                    curr_style_img = np.ones((img_shape[0], img_shape[1], 1)) * style_id
                     X[j, :, :, 3:] = curr_lambda_style_img
+                    X[j, :, :, 4:] = curr_style_img
             else:
                 X = data_in[pos:pos+batch_size]
 
             _preds = sess.run(preds, feed_dict={img_placeholder:X})
             for j, path_out in enumerate(curr_batch_out):
-                save_img(path_out, _preds[j])
+                f, ext = path_out.split('.')
+                save_img(f+'_'+str(int(curr_lambda_style))+'_'+str(style_id)+'.'+ext, _preds[j])
                 
         remaining_in = data_in[num_iters*batch_size:]
         remaining_out = paths_out[num_iters*batch_size:]
@@ -140,9 +145,10 @@ def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4, co
         ffwd(remaining_in, remaining_out, checkpoint_dir, 
             device_t=device_t, batch_size=1)
 
-def ffwd_to_img(in_path, out_path, checkpoint_dir, device='/cpu:0', control_lambda_style=None):
+def ffwd_to_img(in_path, out_path, checkpoint_dir, device='/cpu:0', control_lambda_style=None, style_id=None):
     paths_in, paths_out = [in_path], [out_path]
-    ffwd(paths_in, paths_out, checkpoint_dir, batch_size=1, device_t=device, control_lambda_style=control_lambda_style)
+    ffwd(paths_in, paths_out, checkpoint_dir, batch_size=1, device_t=device,
+         control_lambda_style=control_lambda_style, style_id=style_id)
 
 def ffwd_different_dimensions(in_path, out_path, checkpoint_dir, 
             device_t=DEVICE, batch_size=4):
@@ -190,6 +196,9 @@ def build_parser():
     parser.add_argument('--control-style', type=int,
                         dest='control_lambda_style',help='weights for style')
 
+    parser.add_argument('--style-id', type=int,
+                        dest='style_id',help='selection for style')
+
     return parser
 
 def check_opts(opts):
@@ -212,7 +221,7 @@ def main():
             out_path = opts.out_path
 
         ffwd_to_img(opts.in_path, out_path, opts.checkpoint_dir,
-                    device=opts.device, control_lambda_style=opts.control_lambda_style)
+                    device=opts.device, control_lambda_style=opts.control_lambda_style, style_id=opts.style_id)
     else:
         files = list_files(opts.in_path)
         full_in = [os.path.join(opts.in_path,x) for x in files]

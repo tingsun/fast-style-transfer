@@ -9,12 +9,13 @@ import evaluate
 
 CONTENT_WEIGHT = 7.5e0
 STYLE_WEIGHT = 1e2
+STYLE_DIR = None
 TV_WEIGHT = 2e2
 
 LEARNING_RATE = 1e-3
 NUM_EPOCHS = 2
 CHECKPOINT_DIR = 'checkpoints'
-CHECKPOINT_ITERATIONS = 200
+CHECKPOINT_ITERATIONS = 2
 VGG_PATH = 'data/imagenet-vgg-verydeep-19.mat'
 TRAIN_PATH = 'data/train2014'
 BATCH_SIZE = 4
@@ -27,9 +28,13 @@ def build_parser():
                         dest='checkpoint_dir', help='dir to save checkpoint in',
                         metavar='CHECKPOINT_DIR', required=True)
 
-    parser.add_argument('--style', type=str,
-                        dest='style', help='style image path',
-                        metavar='STYLE', required=True)
+    # parser.add_argument('--style', type=str,
+    #                     dest='style', help='style image path',
+    #                     metavar='STYLE', required=True)
+
+    parser.add_argument('--style-dir', type=str,
+                        dest='style_dir', help='style image directory path',
+                        metavar='STYLE_DIR', required=True)
 
     parser.add_argument('--train-path', type=str,
                         dest='train_path', help='path to training images folder',
@@ -89,7 +94,8 @@ def build_parser():
 
 def check_opts(opts):
     exists(opts.checkpoint_dir, "checkpoint dir not found!")
-    exists(opts.style, "style path not found!")
+    # exists(opts.style, "style path not found!")
+    exists(opts.style_dir, "style_dir not found!")
     exists(opts.train_path, "train path not found!")
     if opts.test or opts.test_dir:
         exists(opts.test, "test img not found!")
@@ -114,7 +120,12 @@ def main():
     options = parser.parse_args()
     check_opts(options)
 
-    style_target = get_img(options.style)
+    # style_target = get_img(options.style)
+    # style_targets = []
+    # for path in os.listdir(options.style_dir):
+    #     style_targets.append(get_img(os.path.join(options.style_dir, path)))
+    style_targets = np.array([get_img(os.path.join(options.style_dir, fname), (256,256,3)) for fname in os.listdir(options.style_dir)])
+
     if not options.slow:
         content_targets = _get_files(options.train_path)
     elif options.test:
@@ -137,7 +148,8 @@ def main():
 
     args = [
         content_targets,
-        style_target,
+        # style_target,
+        style_targets,
         options.content_weight,
         options.style_weight,
         options.tv_weight,
@@ -161,7 +173,8 @@ def main():
                 ckpt_dir = os.path.dirname(options.checkpoint_dir)
                 evaluate.ffwd_to_img(options.test, preds_path,
                                      options.checkpoint_dir,
-                                     control_lambda_style=curr_lambda_style)
+                                     control_lambda_style=curr_lambda_style,
+                                     style_id=np.random.randint(len(style_targets)))
             else:
                 save_img(preds_path, img)
 
