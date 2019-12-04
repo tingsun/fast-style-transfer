@@ -237,7 +237,7 @@ def optimize(content_targets, style_targets, content_weight, style_weight,
                 if should_print:
                     to_get = [style_loss, content_loss, tv_loss, loss, preds]
                     test_feed_dict = {
-                       X_content:X_batch, lambda_style: 80.0, style_id: 1  # np.random.randint(1, 10) / 10.0
+                       X_content:X_batch, lambda_style: 80.0, style_id: 0  # np.random.randint(1, 10) / 10.0
                     }
 
                     tup = sess.run(to_get, feed_dict = test_feed_dict)
