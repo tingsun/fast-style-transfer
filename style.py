@@ -52,6 +52,12 @@ def build_parser():
                         help='gatys\' approach (for debugging, not supported)',
                         default=False)
 
+    parser.add_argument('--save-checkpoint', dest='save_checkpoint', action='store_true',
+                        default=False)
+
+    parser.add_argument('--restore-checkpoint', dest='restore_checkpoint', action='store_true',
+                        default=False)
+
     parser.add_argument('--epochs', type=int,
                         dest='epochs', help='num epochs',
                         metavar='EPOCHS', default=NUM_EPOCHS)

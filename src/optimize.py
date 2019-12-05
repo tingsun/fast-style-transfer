@@ -17,7 +17,9 @@ DEVICES = 'CUDA_VISIBLE_DEVICES'
 def optimize(content_targets, style_targets, content_weight, style_weight,
              tv_weight, vgg_path, epochs=2, print_iterations=1,
              batch_size=4, save_path='saver/fns.ckpt', slow=False,
-             learning_rate=1e-3, debug=False):
+             learning_rate=1e-3, debug=False,
+             save_checkpoint=False,
+             restore_checkpoint=False):
     if slow:
         batch_size = 1
     mod = len(content_targets) % batch_size
@@ -51,7 +53,9 @@ def optimize(content_targets, style_targets, content_weight, style_weight,
                 # print(features.shape)
                 features = np.reshape(features, (-1, features.shape[3]))
                 # print(features.shape)
-                gram = np.matmul(features.T, features) / features.size
+                # gram = np.matmul(features.T, features) / features.size
+                gram = np.matmul(features.T - np.mean(features.T), features - np.mean(features)) / features.size
+
                 # print(gram.shape)
 
                 if not STYLE_LAYERS_SHAPE[STYLE_LAYERS.index(layer)]:
@@ -119,7 +123,7 @@ def optimize(content_targets, style_targets, content_weight, style_weight,
             feats = tf.reshape(layer, (bs, height * width, filters))
             feats_T = tf.transpose(feats, perm=[0,2,1])
             # grams = tf.matmul(feats_T, feats) / size
-            grams = tf.matmul(feats_T - tf.mean(feats_T), feats - tf.mean(feats)) / size
+            grams = tf.matmul(feats_T - tf.reduce_mean(feats_T), feats - tf.reduce_mean(feats)) / size
 
             # test = lambda_style.eval(session=sess)
             # print('test : ' + test)
@@ -183,7 +187,19 @@ def optimize(content_targets, style_targets, content_weight, style_weight,
         import random
         uid = random.randint(1, 100)
         print("UID: %s" % uid)
+
+        if restore_checkpoint:
+            saver = tf.train.Saver()
+            saver.restore(sess, save_path)
+
         for epoch in range(epochs):
+            if save_checkpoint:
+                saver = tf.train.Saver()
+                cp_path = os.path.join(save_path, epoch)
+                if not os.path.exists(cp_path):
+                    os.makedirs(cp_path)
+                res = saver.save(sess, cp_path)
+
             print('epoch: {}'.format(epoch))
             num_examples = len(content_targets)
             iterations = 0
@@ -250,6 +266,7 @@ def optimize(content_targets, style_targets, content_weight, style_weight,
                     else:
                        saver = tf.train.Saver()
                        res = saver.save(sess, save_path)
+
                     yield(_preds, losses, iterations, epoch)
 
 def _tensor_size(tensor):
