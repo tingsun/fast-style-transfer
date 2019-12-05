@@ -118,7 +118,8 @@ def optimize(content_targets, style_targets, content_weight, style_weight,
             size = height * width * filters
             feats = tf.reshape(layer, (bs, height * width, filters))
             feats_T = tf.transpose(feats, perm=[0,2,1])
-            grams = tf.matmul(feats_T, feats) / size
+            # grams = tf.matmul(feats_T, feats) / size
+            grams = tf.matmul(feats_T - tf.mean(feats_T), feats - tf.mean(feats)) / size
 
             # test = lambda_style.eval(session=sess)
             # print('test : ' + test)
@@ -194,7 +195,7 @@ def optimize(content_targets, style_targets, content_weight, style_weight,
                 curr_lambda_style = np.random.randint(1, 100) * 1.0
                 curr_lambda_style_img = np.ones((256, 256, 1)) * curr_lambda_style
 
-                curr_style_id = np.random.randint(len(style_targets)) if epoch > 1 else 0
+                curr_style_id = np.random.randint(len(style_targets)) if epoch > 0 else 0
                 # print('\ncurr_style_id:')
                 # print(type(curr_style_id))
                 # print(curr_style_id)

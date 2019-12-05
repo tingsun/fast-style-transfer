@@ -165,7 +165,7 @@ def main():
 
         if options.test:
             print('Save test image.')
-            curr_lambda_style = np.random.randint(1, 10) * 10.0
+            curr_lambda_style = np.random.randint(1, 100) * 1.0
             # print('curr_lambda_style: {}'.format(curr_lambda_style))
             assert options.test_dir != False
             preds_path = '%s/%s_%s.png' % (options.test_dir,epoch,i)
