@@ -196,6 +196,7 @@ def optimize(content_targets, style_targets, content_weight, style_weight,
             if save_checkpoint:
                 saver = tf.train.Saver()
                 cp_path = os.path.join(save_path, epoch)
+                print('save checkpoint to : ' + cp_path)
                 if not os.path.exists(cp_path):
                     os.makedirs(cp_path)
                 res = saver.save(sess, cp_path)
