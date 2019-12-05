@@ -19,7 +19,7 @@ def optimize(content_targets, style_targets, content_weight, style_weight,
              batch_size=4, save_path='saver/fns.ckpt', slow=False,
              learning_rate=1e-3, debug=False,
              save_checkpoint=False,
-             restore_checkpoint=False):
+             restore_checkpoint_path=None):
     if slow:
         batch_size = 1
     mod = len(content_targets) % batch_size
@@ -188,9 +188,9 @@ def optimize(content_targets, style_targets, content_weight, style_weight,
         uid = random.randint(1, 100)
         print("UID: %s" % uid)
 
-        if restore_checkpoint:
+        if restore_checkpoint_path:
             saver = tf.train.Saver()
-            saver.restore(sess, save_path)
+            saver.restore(sess, restore_checkpoint_path)
 
         for epoch in range(epochs):
             if save_checkpoint:

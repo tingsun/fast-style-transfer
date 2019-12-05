@@ -55,8 +55,8 @@ def build_parser():
     parser.add_argument('--save-checkpoint', dest='save_checkpoint', action='store_true',
                         default=False)
 
-    parser.add_argument('--restore-checkpoint', dest='restore_checkpoint', action='store_true',
-                        default=False)
+    parser.add_argument('--restore-checkpoint', dest='restore_checkpoint', type=str,
+                        default=None)
 
     parser.add_argument('--epochs', type=int,
                         dest='epochs', help='num epochs',
@@ -143,7 +143,9 @@ def main():
         "print_iterations":options.checkpoint_iterations,
         "batch_size":options.batch_size,
         "save_path":os.path.join(options.checkpoint_dir,'fns.ckpt'),
-        "learning_rate":options.learning_rate
+        "learning_rate":options.learning_rate,
+        "save_checkpoint":options.save_checkpoint,
+        "restore_checkpoint_path":os.path.join(options.restore_checkpoint,'fns.ckpt')
     }
 
     if options.slow:
