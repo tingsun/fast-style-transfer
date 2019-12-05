@@ -145,7 +145,7 @@ def main():
         "save_path":os.path.join(options.checkpoint_dir,'fns.ckpt'),
         "learning_rate":options.learning_rate,
         "save_checkpoint":options.save_checkpoint,
-        "restore_checkpoint_path":os.path.join(options.restore_checkpoint,'fns.ckpt')
+        "restore_checkpoint_path":os.path.join(options.restore_checkpoint,'fns.ckpt') if options.restore_checkpoint else None
     }
 
     if options.slow:

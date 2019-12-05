@@ -189,16 +189,22 @@ def optimize(content_targets, style_targets, content_weight, style_weight,
         print("UID: %s" % uid)
 
         if restore_checkpoint_path:
+            print('Restoring checkpoint from : ' + restore_checkpoint_path)
             saver = tf.train.Saver()
             saver.restore(sess, restore_checkpoint_path)
 
         for epoch in range(epochs):
-            if save_checkpoint:
+            if save_checkpoint and epoch > 0:
                 saver = tf.train.Saver()
-                cp_path = os.path.join(save_path, epoch)
+                head, tail = os.path.split(save_path)
+
+                cp_dir = os.path.join(head, str(epoch))
+
+                if not os.path.exists(cp_dir):
+                    os.makedirs(cp_dir)
+
+                cp_path = os.path.join(cp_dir, tail)
                 print('save checkpoint to : ' + cp_path)
-                if not os.path.exists(cp_path):
-                    os.makedirs(cp_path)
                 res = saver.save(sess, cp_path)
 
             print('epoch: {}'.format(epoch))
